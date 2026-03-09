@@ -1,0 +1,21 @@
+{
+  "name": "opencode",
+  "version": "1.0.0",
+  "description": "Local Crush + MCP playground",
+  "main": "index.js",
+  "scripts": {
+    "crush": "crush",
+    "crush:run": "crush run",
+    "mcp:bootstrap": "./agentic-tools-mcp/scripts/bootstrap_local_env.sh",
+    "mcp:smoke": "./scripts/run_mcp_smoke.sh",
+    "mcp:probe-live": "./scripts/run_mcp_live_probe.sh",
+    "test": "echo \"No tests configured in this workspace\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@charmland/crush": "0.47.2"
+  }
+}

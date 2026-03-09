@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-tools-mcp"
+version = "0.1.0"
+description = "Generic MCP servers for the split agentic recruiting tool repos"
+requires-python = ">=3.10"
+dependencies = [
+  "agentic-tools-core>=0.1.0",
+  "agentic-tools-ashby>=0.1.0",
+  "agentic-tools-gem>=0.1.0",
+  "agentic-tools-harmonic>=0.1.0",
+  "agentic-tools-metaview>=0.1.0",
+  "mcp>=1.26.0",
+  "pydantic>=2.8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.2",
+]
+
+[tool.setuptools.packages.find]
+include = ["agentic_tools_mcp*"]

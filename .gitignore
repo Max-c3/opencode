@@ -1,0 +1,8 @@
+.DS_Store
+.crush/
+.venv/
+node_modules/
+agentic-tools-mcp/.pytest_cache/
+agentic-tools-mcp/__pycache__/
+agentic-tools-mcp/*.egg-info/
+agentic-tools-mcp/data/
