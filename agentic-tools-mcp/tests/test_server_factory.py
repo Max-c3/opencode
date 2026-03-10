@@ -23,3 +23,10 @@ def test_write_tool_parameters_are_flattened() -> None:
     assert "payload" not in tool.parameters.get("properties", {})
     assert "project_name" in tool.parameters.get("properties", {})
     assert "project_name" in tool.parameters.get("required", [])
+
+
+def test_gem_read_tool_parameters_are_flattened() -> None:
+    tool = _tool(gem_mcp, "gem_list_project_candidates")
+    assert "payload" not in tool.parameters.get("properties", {})
+    assert "project_id" in tool.parameters.get("properties", {})
+    assert "project_id" in tool.parameters.get("required", [])

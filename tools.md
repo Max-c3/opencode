@@ -30,6 +30,9 @@ Source of truth:
 - `ashby_search_hires`
 
 ### Gem
+- `gem_get_candidate`
+- `gem_list_project_candidates`
+- `gem_list_projects`
 - `gem_add_candidate_note_stage`
 - `gem_add_profiles_to_project_stage`
 - `gem_create_project_stage`
@@ -191,7 +194,63 @@ Outputs in `output`:
 
 ## Gem
 
-All Gem tools below are staged writes. Calling them returns the standard stage response described above. The actual provider result appears later in `checkpoint_commit.receipts[].result`.
+`gem_get_candidate`, `gem_list_project_candidates`, and `gem_list_projects` are read tools and return the standard read envelope described above. The `*_stage` Gem tools below are staged writes, and their actual provider results appear later in `checkpoint_commit.receipts[].result`.
+
+### `gem_get_candidate`
+What it does:
+- Fetches a Gem candidate by id and returns the provider's full candidate payload.
+
+Inputs:
+- `candidate_id`: Gem candidate id to fetch.
+
+Outputs in `output`:
+- `candidate_id`: id of the fetched candidate.
+- `candidate`: full candidate object from Gem.
+- `candidate.candidate_id`: convenience alias of the Gem `id` field.
+
+### `gem_list_project_candidates`
+What it does:
+- Lists candidates in a Gem project and can hydrate each membership with the full candidate record.
+
+Inputs:
+- `project_id`: Gem project id to inspect.
+- `page`: results page to fetch. Default `1`.
+- `page_size`: memberships per page. Default `20`, max `100`.
+- `added_after`: optional Unix timestamp filter for memberships added after this time.
+- `added_before`: optional Unix timestamp filter for memberships added before this time.
+- `sort`: optional membership sort direction, `asc` or `desc`.
+- `include_candidates`: whether to include full candidate payloads for the returned memberships. Default `true`.
+
+Outputs in `output`:
+- `project_id`: project that was queried.
+- `project`: full project object from Gem.
+- `project.project_id`: convenience alias of the Gem `id` field.
+- `entries`: candidate memberships on the requested page.
+- `entries[].candidate_id`: Gem candidate id in the project.
+- `entries[].added_at`: when that candidate was added to the project.
+- `entries[].candidate`: full candidate object when `include_candidates=true`; otherwise an empty object.
+- `pagination`: Gem pagination metadata plus `page_size` and `returned_count`.
+- `unresolved_candidate_ids`: candidate ids that appeared in the project membership list but could not be hydrated into full candidate payloads.
+
+### `gem_list_projects`
+What it does:
+- Lists existing Gem projects with pagination and optional owner/access filters.
+
+Inputs:
+- `owner_user_id`: optional filter for projects owned by a specific Gem user.
+- `readable_by_user_id`: optional filter for projects readable by a specific Gem user.
+- `writable_by_user_id`: optional filter for projects writable by a specific Gem user.
+- `is_archived`: optional archived filter.
+- `created_after`: optional Unix timestamp filter for projects created after this time.
+- `created_before`: optional Unix timestamp filter for projects created before this time.
+- `sort`: optional sort direction, `asc` or `desc`.
+- `page`: results page to fetch. Default `1`.
+- `page_size`: projects per page. Default `20`, max `100`.
+
+Outputs in `output`:
+- `projects`: returned project objects.
+- `projects[].project_id`: convenience alias of the Gem `id` field.
+- `pagination`: Gem pagination metadata plus `page_size` and `returned_count`.
 
 ### `gem_add_candidate_note_stage`
 What it does:
