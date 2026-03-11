@@ -376,15 +376,15 @@ What it does:
 
 Inputs:
 - `company_id_or_urn`: Harmonic company id or urn.
-- `size`: page size. Default `100`, max `1000`.
-- `cursor`: optional pagination cursor.
+- `size`: page size. Default `10`, max `1000`. Large values can produce very large hydrated employee payloads.
+- `cursor`: optional pagination token. Harmonic currently expects numeric offset values here, such as `10` for the next page after `size=10`.
 
 Outputs in `output`:
 - `company_id_or_urn`: company that was queried.
 - `count`: number of employee records in the response.
 - `employees`: deduplicated employee profiles.
 - `dedupe_report`: counts for how many profiles were merged during deduplication.
-- `page_info`: pagination metadata for the next page.
+- `page_info`: pagination metadata for the next page. `page_info.next` is the token to pass back as `cursor`.
 
 ### `harmonic_get_people_saved_search_results_with_metadata`
 What it does:
