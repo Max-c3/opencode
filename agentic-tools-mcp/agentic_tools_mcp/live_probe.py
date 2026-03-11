@@ -40,10 +40,11 @@ async def _probe_ashby() -> dict[str, Any]:
                 "ashby_get_recent_hires",
                 {
                     "count": 1,
-                    "selection_mode": "global_latest_exact",
+                    "selection_mode": "global_latest_best_effort",
                     "sort_by": "hired_at",
                     "sort_order": "desc",
-                    "retrieval_policy": "strict_count",
+                    "retrieval_policy": "fast_sample",
+                    "max_scan_pages": 2,
                 },
             )
             payload = dict(result.structuredContent)
@@ -82,7 +83,7 @@ def _probe_direct_live_clients() -> dict[str, Any]:
     if metaview_key:
         status["metaview"] = {
             "status": "credentials_present",
-            "note": "Crush is still configured to start Metaview in mock mode.",
+            "note": "This workspace still starts Metaview in mock mode.",
         }
     else:
         status["metaview"] = {

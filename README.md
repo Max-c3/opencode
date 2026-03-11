@@ -1,11 +1,12 @@
-# Local Crush + Split MCP Setup
+# Local OpenCode + Split MCP Setup
 
-This workspace runs [Crush](https://github.com/charmbracelet/crush) locally via a pinned npm package and uses 4 local MCP servers as tool providers. This repo owns runtime/orchestration only:
+This workspace runs [OpenCode](https://github.com/anomalyco/opencode) locally against 5 MCP servers. This repo owns orchestration only:
 
-- OpenCode config and npm scripts
+- repo-local `opencode.json`
+- npm helper scripts
 - the generic MCP runtime in `agentic-tools-mcp`
 
-The platform tool logic now lives in a separate sibling monorepo.
+The platform tool logic lives in the sibling monorepo at `/Users/maximilian/coding/agentic-platform-tools`.
 
 ## Runtime repo contents
 
@@ -14,22 +15,21 @@ The platform tool logic now lives in a separate sibling monorepo.
 
 ## Sibling tool monorepo
 
-- `/Users/maximilian/coding/agentic-platform-tools`
-- packages inside it:
-  - `agentic-tools-core`
-  - `agentic-tools-ashby`
-  - `agentic-tools-gem`
-  - `agentic-tools-harmonic`
-  - `agentic-tools-metaview`
+- `/Users/maximilian/coding/agentic-platform-tools/agentic-tools-core`
+- `/Users/maximilian/coding/agentic-platform-tools/agentic-tools-ashby`
+- `/Users/maximilian/coding/agentic-platform-tools/agentic-tools-gem`
+- `/Users/maximilian/coding/agentic-platform-tools/agentic-tools-harmonic`
+- `/Users/maximilian/coding/agentic-platform-tools/agentic-tools-metaview`
 
-## What `crush.json` starts
+## What `opencode.json` starts
 
 - `agentic_tools_ashby`
 - `agentic_tools_gem`
 - `agentic_tools_harmonic`
 - `agentic_tools_metaview`
+- `linkedin_profile_changes`
 
-Each MCP server runs over `stdio` from `/Users/maximilian/coding/opencode/.venv/bin/python`.
+Each MCP server runs locally from `/Users/maximilian/coding/opencode/.venv/bin/python`.
 
 ## Commands
 
@@ -39,7 +39,13 @@ Bootstrap or refresh the shared Python environment:
 npm run mcp:bootstrap
 ```
 
-Run the MCP smoke test across all 4 servers in `mock` mode:
+List the configured MCP servers through OpenCode:
+
+```bash
+npm run opencode:mcp:list
+```
+
+Run the MCP smoke test across the split servers in `mock` mode:
 
 ```bash
 npm run mcp:smoke
@@ -51,16 +57,28 @@ Run the live probe for the selected live integrations:
 npm run mcp:probe-live
 ```
 
-Run Crush interactively:
+Run OpenCode interactively:
 
 ```bash
-npm run crush
+npm run opencode
 ```
 
-Run Crush non-interactively:
+Run OpenCode non-interactively:
 
 ```bash
-npm run crush:run -- "List the available recruiting tools."
+npm run opencode:run -- "List the available recruiting tools."
+```
+
+Start the headless OpenCode server:
+
+```bash
+npm run opencode:serve
+```
+
+Start the OpenCode web interface:
+
+```bash
+npm run opencode:web
 ```
 
 ## Current runtime mode
@@ -75,7 +93,7 @@ Shared credentials are loaded from `/Users/maximilian/coding/agentic recruiting/
 ## Notes
 
 - MCP tool parameters are exposed directly from each tool input schema. They are not wrapped in a top-level `payload` object.
-- Gem write tools and Harmonic enrichment tools are staged through checkpoints.
-- Checkpoint state persists in `/Users/maximilian/coding/opencode/agentic-tools-mcp/data`.
+- Gem and Harmonic write tools now execute directly over MCP and return a receipt envelope alongside the business output.
+- Receipt and idempotency state persists in `/Users/maximilian/coding/opencode/agentic-tools-mcp/data`.
 - Metaview stays in `mock` mode until a real `METAVIEW_API_KEY` is available.
-- `crush run` still requires a configured provider. If none is configured, Crush will return `No providers configured`.
+- OpenCode still requires a configured model provider before interactive or non-interactive agent runs will work.

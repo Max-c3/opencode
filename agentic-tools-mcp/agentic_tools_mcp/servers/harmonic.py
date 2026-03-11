@@ -14,7 +14,7 @@ mcp = build_server(
     ServerSpec(
         server_name="agentic-tools-harmonic",
         platform_name="harmonic",
-        instructions="Expose all Harmonic recruiting tools over MCP with staged enrichment approval.",
+        instructions="Expose all Harmonic recruiting tools over MCP with direct enrichment execution.",
         register_tools=register_tools,
         policy_path=REPO_ROOT / "policy" / "capabilities.yaml",
         db_path=MCP_ROOT / "data" / "harmonic.db",

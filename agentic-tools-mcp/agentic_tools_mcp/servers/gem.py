@@ -14,7 +14,7 @@ mcp = build_server(
     ServerSpec(
         server_name="agentic-tools-gem",
         platform_name="gem",
-        instructions="Expose all Gem recruiting tools over MCP with staged write approval.",
+        instructions="Expose all Gem recruiting tools over MCP with direct write execution.",
         register_tools=register_tools,
         policy_path=REPO_ROOT / "policy" / "capabilities.yaml",
         db_path=MCP_ROOT / "data" / "gem.db",

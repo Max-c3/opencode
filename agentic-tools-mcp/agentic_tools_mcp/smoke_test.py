@@ -62,28 +62,17 @@ async def main() -> None:
     )
 
     gem_tools = await _list_tools("gem")
-    gem_stage = await _call(
+    gem_write = await _call(
         "gem",
-        "gem_create_project_stage",
+        "gem_create_project",
         {"project_name": "Backend Hiring Sprint", "metadata": {"source": "smoke"}},
     )
-    gem_checkpoint_id = gem_stage["checkpoint_id"]
-    gem_list = await _call("gem", "checkpoint_list", {})
-    gem_commit = await _call("gem", "checkpoint_commit", {"checkpoint_id": gem_checkpoint_id})
-    gem_commit_repeat = await _call("gem", "checkpoint_commit", {"checkpoint_id": gem_checkpoint_id})
 
     harmonic_tools = await _list_tools("harmonic")
-    harmonic_stage = await _call(
+    harmonic_write = await _call(
         "harmonic",
-        "harmonic_enrich_person_stage",
+        "harmonic_enrich_person",
         {"linkedin_url": "https://linkedin.com/in/example-person"},
-    )
-    harmonic_checkpoint_id = harmonic_stage["checkpoint_id"]
-    harmonic_list = await _call("harmonic", "checkpoint_list", {})
-    harmonic_reject = await _call(
-        "harmonic",
-        "checkpoint_reject",
-        {"checkpoint_id": harmonic_checkpoint_id, "reason": "smoke test cleanup"},
     )
 
     metaview_tools = await _list_tools("metaview")
@@ -104,14 +93,9 @@ async def main() -> None:
     print("ASHBY_TOOLS", ashby_tools)
     print("ASHBY_RESULT", ashby_result)
     print("GEM_TOOLS", gem_tools)
-    print("GEM_STAGE", gem_stage)
-    print("GEM_LIST", gem_list)
-    print("GEM_COMMIT", gem_commit)
-    print("GEM_COMMIT_REPEAT", gem_commit_repeat)
+    print("GEM_WRITE", gem_write)
     print("HARMONIC_TOOLS", harmonic_tools)
-    print("HARMONIC_STAGE", harmonic_stage)
-    print("HARMONIC_LIST", harmonic_list)
-    print("HARMONIC_REJECT", harmonic_reject)
+    print("HARMONIC_WRITE", harmonic_write)
     print("METAVIEW_TOOLS", metaview_tools)
     print("METAVIEW_RESULT", metaview_result)
 

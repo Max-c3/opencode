@@ -7,9 +7,8 @@ Generic MCP runtime for the split recruiting tool repos.
 - loads shared credentials from `AR_SHARED_ENV_PATH` or a known local `.env`
 - builds MCP tools automatically from the platform registries
 - exposes read tools directly over MCP
-- exposes write or side-effect tools as `*_stage`
-- provides `checkpoint_list`, `checkpoint_commit`, and `checkpoint_reject`
-- persists checkpoint and receipt state in `data/*.db`
+- exposes write and side-effect tools directly over MCP
+- persists receipt and idempotency state in `data/*.db`
 
 ## Server entrypoints
 
@@ -26,10 +25,12 @@ The server factory inspects each tool's Pydantic input model and generates a fla
 - MCP name: `ashby_get_recent_hires`
 - call shape: direct keyword args such as `count=3`, not `payload={...}`
 
-Write tools are staged instead of executed immediately:
+Write tools use the same naming convention and return:
 
-- `gem.create_project` -> `gem_create_project_stage`
-- `harmonic.enrich_person` -> `harmonic_enrich_person_stage`
+- `output`: committed business result
+- `summary`: short execution summary
+- `verification`: runtime verification result
+- `receipt`: receipt metadata with `receipt_id`, `tool_id`, `status`, `idempotency_key`, and `created_at`
 
 ## Commands
 
@@ -61,6 +62,6 @@ Run the live probe:
 
 - This package is expected to live inside `/Users/maximilian/coding/opencode/agentic-tools-mcp`.
 - The runtime Python environment lives at `/Users/maximilian/coding/opencode/.venv`.
-- Checkpoint data lives in `/Users/maximilian/coding/opencode/agentic-tools-mcp/data`.
+- Receipt state lives in `/Users/maximilian/coding/opencode/agentic-tools-mcp/data`.
 - Ashby, Gem, and Harmonic can run in `live` mode when credentials are present.
 - Metaview is currently expected to remain `mock` until a real `METAVIEW_API_KEY` is provided.

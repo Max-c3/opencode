@@ -1,11 +1,14 @@
 {
   "name": "opencode",
   "version": "1.0.0",
-  "description": "Local Crush + MCP playground",
+  "description": "Local OpenCode + split MCP workspace",
   "main": "index.js",
   "scripts": {
-    "crush": "crush",
-    "crush:run": "crush run",
+    "opencode": "OPENCODE_CONFIG=./opencode.json opencode",
+    "opencode:run": "OPENCODE_CONFIG=./opencode.json opencode run",
+    "opencode:serve": "OPENCODE_CONFIG=./opencode.json opencode serve",
+    "opencode:web": "OPENCODE_CONFIG=./opencode.json opencode web",
+    "opencode:mcp:list": "OPENCODE_CONFIG=./opencode.json opencode mcp list",
     "mcp:bootstrap": "./agentic-tools-mcp/scripts/bootstrap_local_env.sh",
     "mcp:smoke": "./scripts/run_mcp_smoke.sh",
     "mcp:probe-live": "./scripts/run_mcp_live_probe.sh",
@@ -15,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "dependencies": {
-    "@charmland/crush": "0.47.2"
+  "devDependencies": {
+    "opencode-ai": "1.2.24"
   }
 }

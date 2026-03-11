@@ -11,6 +11,10 @@ def _tool(server, name: str):
     raise AssertionError(f"missing tool: {name}")
 
 
+def _tool_names(server) -> set[str]:
+    return {tool.name for tool in server._tool_manager.list_tools()}
+
+
 def test_read_tool_parameters_are_flattened() -> None:
     tool = _tool(ashby_mcp, "ashby_get_recent_hires")
     assert "payload" not in tool.parameters.get("properties", {})
@@ -19,7 +23,7 @@ def test_read_tool_parameters_are_flattened() -> None:
 
 
 def test_write_tool_parameters_are_flattened() -> None:
-    tool = _tool(gem_mcp, "gem_create_project_stage")
+    tool = _tool(gem_mcp, "gem_create_project")
     assert "payload" not in tool.parameters.get("properties", {})
     assert "project_name" in tool.parameters.get("properties", {})
     assert "project_name" in tool.parameters.get("required", [])
@@ -30,3 +34,24 @@ def test_gem_read_tool_parameters_are_flattened() -> None:
     assert "payload" not in tool.parameters.get("properties", {})
     assert "project_id" in tool.parameters.get("properties", {})
     assert "project_id" in tool.parameters.get("required", [])
+
+
+def test_new_gem_read_tool_parameters_are_flattened() -> None:
+    tool = _tool(gem_mcp, "gem_find_candidates")
+    assert "payload" not in tool.parameters.get("properties", {})
+    assert "email" in tool.parameters.get("properties", {})
+    assert "candidate_ids" in tool.parameters.get("properties", {})
+
+
+def test_new_gem_write_tool_parameters_are_flattened() -> None:
+    tool = _tool(gem_mcp, "gem_update_project")
+    assert "payload" not in tool.parameters.get("properties", {})
+    assert "project_id" in tool.parameters.get("properties", {})
+    assert "project_id" in tool.parameters.get("required", [])
+
+
+def test_no_checkpoint_tools_are_registered() -> None:
+    tool_names = _tool_names(gem_mcp)
+    assert "checkpoint_list" not in tool_names
+    assert "checkpoint_commit" not in tool_names
+    assert "checkpoint_reject" not in tool_names
