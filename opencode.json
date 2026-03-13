@@ -1,0 +1,62 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-opus-4-6",
+  "mcp": {
+    "agentic_tools_ashby": {
+      "type": "local",
+      "command": [
+        "/Users/maximilian/coding/opencode/.venv/bin/python",
+        "-m",
+        "agentic_tools_mcp.servers.ashby"
+      ],
+      "enabled": true,
+      "timeout": 60000,
+      "environment": {
+        "AR_INTEGRATION_MODE": "live",
+        "AR_SHARED_ENV_PATH": "/Users/maximilian/coding/agentic recruiting/.env"
+      }
+    },
+    "agentic_tools_gem": {
+      "type": "local",
+      "command": [
+        "/Users/maximilian/coding/opencode/.venv/bin/python",
+        "-m",
+        "agentic_tools_mcp.servers.gem"
+      ],
+      "enabled": true,
+      "timeout": 60000,
+      "environment": {
+        "AR_INTEGRATION_MODE": "live",
+        "AR_SHARED_ENV_PATH": "/Users/maximilian/coding/agentic recruiting/.env"
+      }
+    },
+    "agentic_tools_harmonic": {
+      "type": "local",
+      "command": [
+        "/Users/maximilian/coding/opencode/.venv/bin/python",
+        "-m",
+        "agentic_tools_mcp.servers.harmonic"
+      ],
+      "enabled": true,
+      "timeout": 60000,
+      "environment": {
+        "AR_INTEGRATION_MODE": "live",
+        "AR_SHARED_ENV_PATH": "/Users/maximilian/coding/agentic recruiting/.env"
+      }
+    },
+    "agentic_tools_metaview": {
+      "type": "local",
+      "command": [
+        "/Users/maximilian/coding/opencode/.venv/bin/python",
+        "-m",
+        "agentic_tools_mcp.servers.metaview"
+      ],
+      "enabled": true,
+      "timeout": 60000,
+      "environment": {
+        "AR_INTEGRATION_MODE": "mock",
+        "AR_SHARED_ENV_PATH": "/Users/maximilian/coding/agentic recruiting/.env"
+      }
+    }
+  }
+}
