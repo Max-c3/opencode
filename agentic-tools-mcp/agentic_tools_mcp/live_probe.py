@@ -82,7 +82,7 @@ def _probe_direct_live_clients() -> dict[str, Any]:
     if metaview_key:
         status["metaview"] = {
             "status": "credentials_present",
-            "note": "Crush is still configured to start Metaview in mock mode.",
+            "note": "OpenCode is configured to start Metaview in mock mode.",
         }
     else:
         status["metaview"] = {

@@ -1,5 +1,4 @@
 .DS_Store
-.crush/
 .venv/
 node_modules/
 agentic-tools-mcp/.pytest_cache/

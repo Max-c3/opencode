@@ -2,6 +2,8 @@
 
 This workspace runs [OpenCode](https://opencode.ai/) locally with four MCP stdio servers for recruiting workflows. It is an orchestration repo, not the source of truth for provider logic.
 
+The active CLI dependency is `opencode-ai`, and the active local config file is `opencode.json`.
+
 This repo owns:
 
 - the pinned `opencode-ai` CLI dependency
@@ -75,6 +77,8 @@ npm run opencode:run -- "List the available recruiting tools."
 | Run OpenCode interactively | `npm run opencode` | Launches OpenCode with the local MCP config |
 | Run OpenCode once | `npm run opencode:run -- "prompt"` | Executes a single prompt non-interactively |
 | Runtime unit tests | `./.venv/bin/pytest -q agentic-tools-mcp/tests` | Runs the local MCP runtime tests |
+
+The top-level `npm test` script is only a placeholder. The real local tests in this repo live under `agentic-tools-mcp/tests`.
 
 ## Checkpoint Model
 

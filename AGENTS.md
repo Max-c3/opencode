@@ -2,10 +2,10 @@
 
 ## Project Overview
 
-Local workspace for running [Crush](https://github.com/charmbracelet/crush) with a split MCP setup. OpenCode is not a fork of Crush and does not contain tool business logic. This repo owns runtime/orchestration:
+Local workspace for running [OpenCode](https://opencode.ai/) with a split MCP setup. This repo owns runtime/orchestration:
 
-- the upstream `@charmland/crush` dependency
-- `crush.json`
+- the upstream `opencode-ai` dependency
+- `opencode.json`
 - npm helper scripts
 - the generic MCP runtime package in `/Users/maximilian/coding/opencode/agentic-tools-mcp`
 
@@ -21,8 +21,8 @@ The platform tool code lives in the sibling monorepo:
 
 | Task | Command | Notes |
 |---|---|---|
-| Launch Crush (interactive) | `npm run crush` | First run requires provider/API key setup |
-| Run Crush non-interactively | `npm run crush:run -- "prompt"` | Fails with `No providers configured` if no key set |
+| Launch OpenCode (interactive) | `npm run opencode` | First run requires provider/API key setup |
+| Run OpenCode non-interactively | `npm run opencode:run -- "prompt"` | Requires a configured provider/API key |
 | Bootstrap shared Python env | `npm run mcp:bootstrap` | Creates/refreshes `/Users/maximilian/coding/opencode/.venv` and editable installs |
 | MCP smoke test | `npm run mcp:smoke` | Runs the split-server smoke test in `mock` mode |
 | Live integration probe | `npm run mcp:probe-live` | Verifies current live wiring for Ashby, Gem, and Harmonic |
@@ -30,11 +30,11 @@ The platform tool code lives in the sibling monorepo:
 
 ## Project Structure
 
-```
+```text
 opencode/
-├── crush.json                          # Crush config — registers 4 MCP stdio servers
-├── package.json                        # npm workspace; pins @charmland/crush@0.47.2
-├── agentic-tools-mcp/                   # Generic MCP runtime package
+├── opencode.json                       # OpenCode config — registers 4 MCP stdio servers
+├── package.json                        # npm workspace; pins opencode-ai
+├── agentic-tools-mcp/                  # Generic MCP runtime package
 ├── tools.md                            # Current callable MCP tools, inputs, and outputs
 ├── scripts/
 │   ├── run_mcp_smoke.sh                # Shell wrapper for mock smoke test
@@ -44,7 +44,7 @@ opencode/
 
 ## MCP Runtime
 
-`crush.json` starts 4 MCP servers from `/Users/maximilian/coding/opencode/.venv/bin/python`:
+`opencode.json` starts 4 MCP servers from `/Users/maximilian/coding/opencode/.venv/bin/python`:
 
 - `agentic_tools_ashby`
 - `agentic_tools_gem`
@@ -60,7 +60,7 @@ Each server is implemented in `/Users/maximilian/coding/opencode/agentic-tools-m
 | `AR_INTEGRATION_MODE` | Selects `mock` or `live` behavior for a server process |
 | `AR_SHARED_ENV_PATH` | Shared `.env` file loaded by the MCP server before tool registration |
 
-Current `crush.json` wiring:
+Current `opencode.json` wiring:
 
 - Ashby: `live`
 - Gem: `live`
@@ -80,8 +80,8 @@ The shared env file currently points at `/Users/maximilian/coding/agentic recrui
 
 ## Gotchas
 
-1. **The sibling tool monorepo must exist locally**: `crush`, smoke tests, and live probes depend on `/Users/maximilian/coding/agentic-platform-tools`.
-2. **`crush.json` still uses absolute paths**: if this repo moves, update the Python interpreter path there.
-3. **Provider setup required**: Crush itself still requires a configured model provider.
+1. **The sibling tool monorepo must exist locally**: OpenCode, smoke tests, and live probes depend on `/Users/maximilian/coding/agentic-platform-tools`.
+2. **`opencode.json` still uses absolute paths**: if this repo moves, update the Python interpreter path there.
+3. **Provider setup required**: OpenCode itself still requires a configured model provider.
 4. **Metaview is intentionally mock-only right now**: there is no usable `METAVIEW_API_KEY` in the shared env file.
 5. **The smoke test is mock by design**: use `npm run mcp:probe-live` when you need to confirm live credential wiring.

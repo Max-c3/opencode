@@ -39,11 +39,22 @@ Source of truth:
 - `gem_set_custom_value_stage`
 
 ### Harmonic
+- `harmonic_create_saved_search_from_query_stage`
+- `harmonic_derive_company_headcount_change_last_90_days`
+- `harmonic_derive_company_recent_joiners`
+- `harmonic_derive_company_recent_leavers`
 - `harmonic_enrich_company_stage`
 - `harmonic_enrich_person_stage`
+- `harmonic_export_people_saved_search_results_as_csv`
 - `harmonic_find_similar_profiles`
-- `harmonic_get_employees_by_company`
+- `harmonic_get_company_current_headcount`
+- `harmonic_get_company_employee_urns`
+- `harmonic_get_company_funding_rounds`
+- `harmonic_get_company_funding_summary`
 - `harmonic_get_people_saved_search_results_with_metadata`
+- `harmonic_get_saved_search`
+- `harmonic_get_saved_searches`
+- `harmonic_get_search_typeahead_results`
 - `harmonic_get_team_network_connections_to_company`
 - `harmonic_search_companies_by_natural_language`
 
@@ -317,7 +328,66 @@ Committed result in `checkpoint_commit.receipts[].result`:
 
 ## Harmonic
 
-`harmonic_enrich_company_stage` and `harmonic_enrich_person_stage` are staged writes. Calling them returns the standard stage response described above. The actual provider result appears later in `checkpoint_commit.receipts[].result`.
+`harmonic_create_saved_search_from_query_stage`, `harmonic_enrich_company_stage`, and `harmonic_enrich_person_stage` are staged writes. Calling them returns the standard stage response described above. Their actual provider result appears later in `checkpoint_commit.receipts[].result`.
+
+### `harmonic_create_saved_search_from_query_stage`
+What it does:
+- Stages creating a Harmonic saved search from a raw `query` payload.
+
+Inputs:
+- `name`: saved search name.
+- `query`: raw saved-search query object or query value to send to Harmonic.
+- `payload`: optional raw request payload. If provided, it can include any provider-specific fields.
+
+Committed result in `checkpoint_commit.receipts[].result`:
+- `saved_search_urn`: urn of the created saved search.
+- `raw`: raw provider response.
+
+### `harmonic_derive_company_headcount_change_last_90_days`
+What it does:
+- Estimates a company's 90-day headcount change from Harmonic's current headcount, snapshots, and `traction_metrics` signals.
+
+Inputs:
+- `company_id_or_urn`: Harmonic company id or urn.
+
+Outputs in `output`:
+- `current_headcount`: best current headcount value, preferring `corrected_headcount`.
+- `estimated_headcount_90_days_ago`: best historical estimate near the 90-day target date.
+- `estimated_absolute_change`: estimated numeric delta from 90 days ago to now.
+- `estimated_relative_change_percent`: estimated percentage delta.
+- `status`: `estimated`, `relative_only`, or `unavailable`.
+- `confidence`: `high`, `medium`, `low`, or `none`.
+- `notes`: caveats about snapshot gaps or conflicting signals.
+
+### `harmonic_derive_company_recent_joiners`
+What it does:
+- Reconstructs recent company joiners by combining company `people` entries with person experience history.
+
+Inputs:
+- `company_id_or_urn`: Harmonic company id or urn.
+- `since_days`: how far back to look. Default `90`, max `365`.
+- `transition_filter`: `all`, `external_only`, `internal_only`, or `unknown_only`.
+- `limit`: max transitions to return. Default `25`, max `200`.
+
+Outputs in `output`:
+- `transitions`: reconstructed joiner records with `name`, `linkedin_url`, `transition_date`, `role_leaving`, `role_entering`, `company_leaving`, `company_joining`, `transition_type`, and `confidence`.
+- `skipped_missing_profile_count`: company people records skipped because person profiles could not be fetched.
+- `notes`: caveats about partial coverage.
+
+### `harmonic_derive_company_recent_leavers`
+What it does:
+- Reconstructs recent company leavers by combining company `people` entries with person experience history.
+
+Inputs:
+- `company_id_or_urn`: Harmonic company id or urn.
+- `since_days`: how far back to look. Default `90`, max `365`.
+- `transition_filter`: `all`, `external_only`, `internal_only`, or `unknown_only`.
+- `limit`: max transitions to return. Default `25`, max `200`.
+
+Outputs in `output`:
+- `transitions`: reconstructed leaver records with `name`, `linkedin_url`, `transition_date`, `role_leaving`, `role_entering`, `company_leaving`, `company_joining`, `transition_type`, and `confidence`.
+- `skipped_missing_profile_count`: company people records skipped because person profiles could not be fetched.
+- `notes`: caveats about partial coverage.
 
 ### `harmonic_enrich_company_stage`
 What it does:
@@ -358,6 +428,24 @@ Committed result in `checkpoint_commit.receipts[].result`:
 - `enriched_person_urn`: person urn that Harmonic enriched, if known.
 - `raw`: raw provider response.
 
+### `harmonic_export_people_saved_search_results_as_csv`
+What it does:
+- Fetches readable Harmonic people saved-search rows as JSON and flattens them into CSV text client-side.
+
+Inputs:
+- `saved_search_id_or_urn`: Harmonic saved search id or urn.
+- `page_size`: rows to fetch per page. Default `100`, max `1000`.
+- `max_pages`: how many pages to fetch. Default `1`, max `20`.
+- `include_raw_json`: whether to add a `raw_json` CSV column.
+
+Outputs in `output`:
+- `row_count`: number of CSV rows produced.
+- `columns`: CSV column order.
+- `csv_text`: generated CSV content.
+- `truncated`: whether more pages were available than the tool fetched.
+- `saved_search`: saved-search metadata used for the export.
+- `notes`: caveats about this being a client-side export, not a provider-native CSV endpoint.
+
 ### `harmonic_find_similar_profiles`
 What it does:
 - Finds candidate profiles similar to the seed profiles you provide.
@@ -370,25 +458,68 @@ Outputs in `output`:
 - `candidates`: deduplicated similar profile results.
 - `dedupe_report`: counts for how many profiles were merged during deduplication.
 
-### `harmonic_get_employees_by_company`
+### `harmonic_get_company_current_headcount`
 What it does:
-- Fetches employees for a single company from Harmonic.
+- Fetches the current headcount fields exposed on a Harmonic company record.
+
+Inputs:
+- `company_id_or_urn`: Harmonic company id or urn.
+
+Outputs in `output`:
+- `current_headcount`: best current headcount value, preferring `corrected_headcount`.
+- `headcount`: raw top-level `headcount`.
+- `corrected_headcount`: corrected headcount when present.
+- `external_headcount`: external headcount when present.
+
+### `harmonic_get_company_employee_urns`
+What it does:
+- Fetches employee urns from Harmonic's company employees endpoint.
 
 Inputs:
 - `company_id_or_urn`: Harmonic company id or urn.
 - `size`: page size. Default `100`, max `1000`.
-- `cursor`: optional pagination cursor.
+- `page`: offset page number. Default `0`.
+- `cursor`: optional cursor.
+- `employee_group_type`: optional Harmonic employee group filter.
+- `user_connection_status`: optional `TEAM_CONNECTION` or `NO_CONNECTION`.
+- `employee_status`: optional `ACTIVE`, `ACTIVE_AND_NOT_ACTIVE`, or `NOT_ACTIVE`.
 
 Outputs in `output`:
-- `company_id_or_urn`: company that was queried.
-- `count`: number of employee records in the response.
-- `employees`: deduplicated employee profiles.
-- `dedupe_report`: counts for how many profiles were merged during deduplication.
-- `page_info`: pagination metadata for the next page.
+- `employee_urns`: deduplicated employee urns returned by the provider.
+- `dedupe_report`: duplicate counts removed from the raw urn list.
+- `page_info`: pagination metadata.
+
+### `harmonic_get_company_funding_rounds`
+What it does:
+- Fetches round-level funding data from a Harmonic company record when that data is present.
+
+Inputs:
+- `company_id_or_urn`: Harmonic company id or urn.
+
+Outputs in `output`:
+- `funding_rounds_count`: number of round rows present on the company record.
+- `has_round_level_data`: whether Harmonic returned any round-level entries.
+- `funding_rounds`: normalized funding rounds with `amount`, `date`, `round_type`, and `raw`.
+- `notes`: caveats, including that this field may be absent for some keys or plans.
+
+### `harmonic_get_company_funding_summary`
+What it does:
+- Fetches the funding summary fields exposed on a Harmonic company record.
+
+Inputs:
+- `company_id_or_urn`: Harmonic company id or urn.
+
+Outputs in `output`:
+- `funding_total`: total funding amount.
+- `num_funding_rounds`: count of funding rounds in the summary.
+- `last_funding_at`: date of the latest round in the summary.
+- `last_funding_total`: amount of the latest round in the summary.
+- `last_funding_type`: type of the latest round.
+- `funding_stage`: current summary funding stage.
 
 ### `harmonic_get_people_saved_search_results_with_metadata`
 What it does:
-- Fetches people results for a Harmonic saved search along with raw search metadata.
+- Fetches people results for a Harmonic saved search and resolves the saved-search metadata alongside those rows.
 
 Inputs:
 - `saved_search_id_or_urn`: Harmonic saved search id or urn.
@@ -401,7 +532,46 @@ Outputs in `output`:
 - `candidates`: deduplicated candidate profiles.
 - `dedupe_report`: counts for how many profiles were merged during deduplication.
 - `page_info`: pagination metadata for the next page.
-- `raw_metadata`: raw saved search metadata from Harmonic.
+- `raw_metadata`: saved-search metadata such as `id`, `entity_urn`, `name`, `type`, `creator`, `is_private`, `updated_at`, `created_at`, and `query` when readable.
+
+### `harmonic_get_saved_search`
+What it does:
+- Fetches a single Harmonic saved search and returns its full query definition.
+
+Inputs:
+- `saved_search_id_or_urn`: Harmonic saved search id or urn.
+
+Outputs in `output`:
+- `name`, `type`, `creator`, `visibility`, `updated_at`, `created_at`: saved-search metadata.
+- `query`: full saved-search query payload.
+- `column_view_settings`: provider column settings for the saved search.
+- `raw`: raw provider payload.
+
+### `harmonic_get_saved_searches`
+What it does:
+- Lists Harmonic saved searches with metadata you can use for discovery or filtering.
+
+Inputs:
+- `search_type`: optional type filter such as `PERSONS`.
+- `visibility`: `all`, `shared`, or `private`.
+- `size`: optional max number of searches to return.
+
+Outputs in `output`:
+- `count`: number of saved searches returned after filtering.
+- `saved_searches`: saved-search rows including `name`, `type`, `creator`, `visibility`, `updated_at`, `created_at`, `query`, and `column_view_settings`.
+
+### `harmonic_get_search_typeahead_results`
+What it does:
+- Runs Harmonic's typeahead endpoint for companies, people, or investors.
+
+Inputs:
+- `query`: text to search.
+- `search_type`: `COMPANY`, `PERSON`, or `INVESTOR`.
+- `limit`: max results to keep from the provider response. Default `25`, max `100`.
+
+Outputs in `output`:
+- `count`: provider count for the query.
+- `results`: normalized typeahead rows with `entity_urn`, `type`, `text`, `alt_text`, `index_field`, `subtype`, `ranking_score`, and `raw`.
 
 ### `harmonic_get_team_network_connections_to_company`
 What it does:
@@ -421,7 +591,7 @@ Outputs in `output`:
 
 ### `harmonic_search_companies_by_natural_language`
 What it does:
-- Runs a natural-language company search in Harmonic.
+- Runs Harmonic's Scout natural-language company search.
 
 Inputs:
 - `query`: natural-language description of the companies you want.
